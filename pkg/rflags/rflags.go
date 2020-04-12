@@ -2,6 +2,7 @@ package rflags
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -45,6 +46,9 @@ func ParseFlags(str interface{}, args []string) error {
 				return fmt.Errorf("error converting flag to int: %w", err)
 			}
 			fieldV.SetInt(int64(v))
+		case reflect.Slice:
+			log.Println(flags)
+			fieldV.Set(reflect.Append(fieldV, reflect.ValueOf(flags[flag])))
 		default:
 			return fmt.Errorf("unexpected field type: %s", fieldT.Type.Kind().String())
 		}

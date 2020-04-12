@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	f := Flags{}
+	f := Flags{Values: []string{}}
 	fmt.Println(rflags.ParseFlags(&f, os.Args[1:]))
 	fmt.Println(f)
 }
@@ -17,4 +17,5 @@ type Flags struct {
 	Debug  bool   `rflag:"debug,d"`
 	Output string
 	Count  int
+	Values []string `rflag:"value,val,v"`
 }
