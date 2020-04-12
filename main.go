@@ -16,4 +16,5 @@ type Flags struct {
 	Source string `rflag:"source,s,src"`
 	Debug  bool   `rflag:"debug,d"`
 	Output string
+	Count  int
 }
