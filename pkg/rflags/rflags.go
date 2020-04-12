@@ -2,13 +2,13 @@ package rflags
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
 // source="./data" debug output=out
+// src="qqq www" debug output=eee count=555 count=666 v=aaa v=bbb v=ccc
 
 func ParseFlags(str interface{}, args []string) error {
 	strT := reflect.TypeOf(str)
@@ -34,21 +34,21 @@ func ParseFlags(str interface{}, args []string) error {
 
 		fieldT := reflect.TypeOf(str).Elem().Field(fieldNum)
 		fieldV := reflect.ValueOf(str).Elem().Field(fieldNum)
+		lastFlag := len(flags[flag]) - 1
 
 		switch fieldT.Type.Kind() {
 		case reflect.String:
-			fieldV.SetString(flags[flag])
+			fieldV.SetString(flags[flag][lastFlag])
 		case reflect.Bool:
 			fieldV.SetBool(true)
 		case reflect.Int:
-			v, err := strconv.Atoi(flags[flag])
+			v, err := strconv.Atoi(flags[flag][lastFlag])
 			if err != nil {
 				return fmt.Errorf("error converting flag to int: %w", err)
 			}
 			fieldV.SetInt(int64(v))
 		case reflect.Slice:
-			log.Println(flags)
-			fieldV.Set(reflect.Append(fieldV, reflect.ValueOf(flags[flag])))
+			fieldV.Set(reflect.AppendSlice(fieldV, reflect.ValueOf(flags[flag])))
 		default:
 			return fmt.Errorf("unexpected field type: %s", fieldT.Type.Kind().String())
 		}
@@ -82,7 +82,7 @@ func getAliases(str interface{}) (Aliases, error) {
 	return aliases, nil
 }
 
-type Flags map[string]string
+type Flags map[string][]string
 
 func getFlags(args []string) (Flags, error) {
 	flags := Flags{}
@@ -95,12 +95,8 @@ func getFlags(args []string) (Flags, error) {
 			val = parts[1]
 		}
 
-		if _, exists := flags[name]; exists {
-			return nil, fmt.Errorf("dublicate flag: %s", name)
-		}
-
 		val = strings.Trim(val, `"`)
-		flags[name] = val
+		flags[name] = append(flags[name], val)
 	}
 
 	return flags, nil
